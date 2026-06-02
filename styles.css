@@ -1,0 +1,106 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.footer {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.disclaimer {
+    color: #999;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.footer a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+input[type="number"], select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+input:disabled {
+    background-color: #f4f4f4;
+    color: #777;
+}
+
+.input-section label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.input-section, .output-section {
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.output-line {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.output-line label {
+    flex: 1;
+}
+
+.output-line span {
+    flex: 1;
+    text-align: right;
+    margin-left: 10px;
+}
+
+.output-line span:nth-child(3) {
+    flex: 2;
+    text-align: left;
+    margin-left: 20px;
+    color: #888; /* Optional: Make the difference column a bit subdued */
+}
+
+.output-summary {
+    margin-top: 20px;
+    padding-top: 10px;
+}
+
+#finalRevenue {
+    font-weight: bold;
+}
