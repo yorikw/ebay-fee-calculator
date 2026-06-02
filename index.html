@@ -26,104 +26,194 @@
 </head>
 
 <body>
-<div class="container">
-    <h1>eBay Fee Calculator</h1>
-    <div class="input-section">
-        <label for="category">Category</label>
-        <select id="category">
-            <option value="most">Most categories</option>
-            <option value="media">Books, movies, music</option>
-            <option value="electronics">Consumer electronics</option>
-            <option value="musical">Musical instruments &amp; gear</option>
-            <option value="motors">eBay Motors parts &amp; accessories</option>
-            <option value="custom">Custom rate</option>
-        </select>
-        <label>
-            <input type="checkbox" id="storeSubscriber"> eBay Store subscriber
-        </label>
-        <label for="customRate">Final Value Fee Rate (%)</label><input type="number" id="customRate"
-                                                                       placeholder="Final Value Fee Rate (%)">
-        <label for="sellingPrice">Selling Price</label><input type="number" id="sellingPrice"
-                                                              placeholder="Selling Price">
-        <label for="productCost">Product Cost</label><input type="number" id="productCost"
-                                                            placeholder="Product Cost">
-        <label for="shippingCharged">Shipping Charged to Buyer</label><input type="number" id="shippingCharged"
-                                                                             placeholder="Shipping Charged">
-        <label for="shippingCost">Shipping Cost Paid by Seller</label><input type="number" id="shippingCost"
-                                                                             placeholder="Shipping Cost">
-        <label for="salesTax">Sales Tax (%)</label><input type="number" id="salesTax" placeholder="Sales Tax (%)">
-        <label for="promotionRate">Promoted Listing Rate (%)</label><input type="number" id="promotionRate"
-                                                                           placeholder="Promotion Rate (%)">
-        <label>
-            <input type="checkbox" id="topRatedPlus"> Top Rated Plus discount
-        </label>
-        <label>
-            <input type="checkbox" id="internationalSale"> International sale
-        </label>
-        <label for="paymentProcessor">Payment Processor</label>
-        <select id="paymentProcessor">
-            <option value="managed">eBay Managed Payments</option>
-            <option value="custom">Custom / PayPal</option>
-        </select>
-        <label for="paymentRate">Custom Processor Rate (%)</label><input type="number" id="paymentRate"
-                                                                         placeholder="Processor Rate (%)">
-        <label for="paymentFixedFee">Custom Processor Fixed Fee</label><input type="number" id="paymentFixedFee"
-                                                                              placeholder="Fixed Fee">
-    </div>
-    <div class="output-section" id="output">
-        <div class="output-line">
-            <label>Buyer pays:</label>
-            <span id="buyerPaid"></span>
-            <span id="buyerPaidDummy"></span>
+<main class="app-shell">
+    <aside class="sidebar" aria-label="Fee calculator inputs">
+        <div class="market-select">
+            <label for="marketplace" class="sr-only">Marketplace</label>
+            <select id="marketplace" aria-label="Marketplace">
+                <option>United States</option>
+            </select>
         </div>
-        <div class="output-line">
-            <label>Total sale amount:</label>
-            <span id="totalSaleAmount"></span>
-            <span id="totalSaleAmountDiff"></span>
+
+        <section class="control-panel">
+            <div class="control-group">
+                <h2>Category <span class="info-dot" title="Choose the closest eBay category preset.">i</span></h2>
+                <select id="category">
+                    <option value="most">Choose a Category</option>
+                    <option value="most">Most categories</option>
+                    <option value="media">Books, movies, music</option>
+                    <option value="electronics">Consumer electronics</option>
+                    <option value="musical">Musical instruments &amp; gear</option>
+                    <option value="motors">eBay Motors parts &amp; accessories</option>
+                    <option value="custom">Custom rate</option>
+                </select>
+                <label class="field-row compact-field" for="customRate">
+                    <span>Custom rate <span class="info-dot" title="Overrides the category final value fee rate.">i</span></span>
+                    <input type="number" id="customRate" placeholder="13.60">
+                </label>
+            </div>
+
+            <div class="control-group">
+                <h2>Payment Processor <span class="info-dot" title="Managed payments are already reflected in eBay seller fees.">i</span></h2>
+                <select id="paymentProcessor">
+                    <option value="managed">Managed</option>
+                    <option value="custom">Custom / PayPal</option>
+                </select>
+                <div class="dual-field-row">
+                    <label for="paymentRate">
+                        <span>Rate %</span>
+                        <input type="number" id="paymentRate" placeholder="3.49">
+                    </label>
+                    <label for="paymentFixedFee">
+                        <span>Fixed</span>
+                        <input type="number" id="paymentFixedFee" placeholder="0.49">
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group account-options">
+                <h2>eBay Account Options <span class="info-dot" title="Optional seller-account modifiers.">i</span></h2>
+                <label>
+                    <input type="checkbox" id="storeSubscriber">
+                    <span>eBay Store Subscription</span>
+                    <span class="info-dot" title="Use store subscriber category rates.">i</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="topRatedPlus">
+                    <span>Top Rated Plus</span>
+                    <span class="info-dot" title="Apply the final value fee discount estimate.">i</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="internationalSale">
+                    <span>International Payment</span>
+                    <span class="info-dot" title="Apply the international fee estimate.">i</span>
+                </label>
+            </div>
+
+            <div class="control-group price-grid">
+                <label class="field-row" for="sellingPrice">
+                    <span>Selling Price * <span class="info-dot" title="Item price before tax.">i</span></span>
+                    <input type="number" id="sellingPrice" placeholder="0">
+                </label>
+                <label class="field-row" for="productCost">
+                    <span>Product Cost <span class="info-dot" title="Your cost to acquire the item.">i</span></span>
+                    <input type="number" id="productCost" placeholder="0">
+                </label>
+                <label class="field-row" for="shippingCharged">
+                    <span>Shipping Price <span class="info-dot" title="Shipping charged to the buyer.">i</span></span>
+                    <input type="number" id="shippingCharged" placeholder="0">
+                </label>
+                <label class="field-row" for="shippingCost">
+                    <span>Shipping Cost <span class="info-dot" title="Your actual shipping cost.">i</span></span>
+                    <input type="number" id="shippingCost" placeholder="0">
+                </label>
+                <label class="field-row" for="promotionRate">
+                    <span>Promotions <span class="info-dot" title="Promoted listing ad rate.">i</span></span>
+                    <input type="number" id="promotionRate" placeholder="0">
+                </label>
+                <label class="field-row" for="salesTax">
+                    <span>Sales Tax <span class="info-dot" title="Tax percentage used to estimate the buyer-paid total.">i</span></span>
+                    <input type="number" id="salesTax" placeholder="0">
+                </label>
+            </div>
+        </section>
+    </aside>
+
+    <section class="dashboard-shell" aria-label="Profit breakdown">
+        <h1>Profit Breakdown</h1>
+
+        <div class="summary-grid">
+            <article class="summary-card fees-card">
+                <div>
+                    <h2>Total Fees</h2>
+                    <strong id="summaryFees">$0.00</strong>
+                </div>
+                <span id="summaryFeesPercent">(0.0%)</span>
+            </article>
+            <article class="summary-card profit-card">
+                <div>
+                    <h2>Total Profit</h2>
+                    <strong id="summaryProfit">$0.00</strong>
+                </div>
+                <span id="summaryProfitPercent">(0.0%)</span>
+            </article>
         </div>
-        <div class="output-line">
-            <label>Final value fee:</label>
-            <span id="finalValueFee"></span>
-            <span id="finalValueFeeDiff"></span>
+
+        <div class="detail-grid">
+            <article class="breakdown-card">
+                <div class="card-header">eBay Fee Details</div>
+                <div class="breakdown-list">
+                    <div class="breakdown-row">
+                        <span>Sold price</span>
+                        <strong id="buyerPaid">$0.00</strong>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>Total sale amount</span>
+                        <strong id="totalSaleAmount">$0.00</strong>
+                    </div>
+                    <p id="totalSaleAmountDiff" class="detail-note"></p>
+                    <div class="breakdown-row">
+                        <span>eBay final value fees</span>
+                        <strong id="finalValueFee">$0.00</strong>
+                    </div>
+                    <p id="finalValueFeeDiff" class="detail-note"></p>
+                    <div class="breakdown-row">
+                        <span>Per-order fee</span>
+                        <strong id="orderFee">$0.00</strong>
+                    </div>
+                    <p id="orderFeeDiff" class="detail-note"></p>
+                    <div class="breakdown-row">
+                        <span>Promotions</span>
+                        <strong id="promotionFee">$0.00</strong>
+                    </div>
+                    <p id="promotionFeeDiff" class="detail-note"></p>
+                    <div class="breakdown-row">
+                        <span>International fee</span>
+                        <strong id="internationalFee">$0.00</strong>
+                    </div>
+                    <p id="internationalFeeDiff" class="detail-note"></p>
+                    <div class="breakdown-row">
+                        <span>Payment processor fee</span>
+                        <strong id="paymentFee">$0.00</strong>
+                    </div>
+                    <p id="paymentFeeDiff" class="detail-note"></p>
+                </div>
+            </article>
+
+            <article class="chart-card">
+                <div id="profitChart" class="donut-chart" role="img" aria-label="Profit, expenses, and fees chart">
+                    <span id="profitMargin">0.00%</span>
+                </div>
+                <div class="legend-list">
+                    <div class="legend-row profit-row">
+                        <span class="legend-dot"></span>
+                        <span>Profit</span>
+                        <strong id="netProfit">$0.00</strong>
+                    </div>
+                    <p id="netProfitDiff" class="detail-note"></p>
+                    <div class="legend-row expenses-row">
+                        <span class="legend-dot"></span>
+                        <span>Expenses</span>
+                        <strong id="summaryExpenses">$0.00</strong>
+                    </div>
+                    <div class="legend-row fees-row">
+                        <span class="legend-dot"></span>
+                        <span>Fees</span>
+                        <strong id="summarySellingFees">$0.00</strong>
+                    </div>
+                    <p id="totalFeesDiff" class="detail-note"></p>
+                    <div class="legend-row total-row">
+                        <span>Total fees and costs</span>
+                        <strong id="totalFees">$0.00</strong>
+                    </div>
+                    <p id="profitMarginDiff" class="detail-note"></p>
+                </div>
+            </article>
         </div>
-        <div class="output-line">
-            <label>Per-order fee:</label>
-            <span id="orderFee"></span>
-            <span id="orderFeeDiff"></span>
-        </div>
-        <div class="output-line">
-            <label>Promotion fee:</label>
-            <span id="promotionFee"></span>
-            <span id="promotionFeeDiff"></span>
-        </div>
-        <div class="output-line">
-            <label>International fee:</label>
-            <span id="internationalFee"></span>
-            <span id="internationalFeeDiff"></span>
-        </div>
-        <div class="output-line">
-            <label>Payment processor fee:</label>
-            <span id="paymentFee"></span>
-            <span id="paymentFeeDiff"></span>
-        </div>
-        <div class="output-line output-summary">
-            <label>Total fees and costs:</label>
-            <span id="totalFees"></span>
-            <span id="totalFeesDiff"></span>
-        </div>
-        <div class="output-line">
-            <label>Net profit:</label>
-            <span id="netProfit"></span>
-            <span id="netProfitDiff"></span>
-        </div>
-        <div class="output-line">
-            <label>Profit margin:</label>
-            <span id="profitMargin"></span>
-            <span id="profitMarginDiff"></span>
-        </div>
-    </div>
-</div>
-<div class="footer">
+    </section>
+</main>
+
+<footer class="footer">
     <p class="disclaimer">
         This webpage is not endorsed by or affiliated with eBay. Fee rates are estimates and may not cover every category or seller-specific rule.
     </p>
@@ -133,7 +223,7 @@
     <p>
         <a href="https://github.com/yorikw/ebay-fee-calculator" target="_blank">Source Code</a>
     </p>
-</div>
+</footer>
 </body>
 
 </html>

@@ -23,6 +23,14 @@ function percent(value: number): string {
     return `${value.toFixed(2)}%`;
 }
 
+function share(value: number, total: number): number {
+    return total > 0 ? (value / total) * 100 : 0;
+}
+
+function setText(id: string, value: string) {
+    document.getElementById(id)!.innerText = value;
+}
+
 function updateCustomRatePlaceholder() {
     const category = selectInput('category') as CategoryKey;
     const customRateInput = document.getElementById('customRate') as HTMLInputElement;
@@ -30,7 +38,7 @@ function updateCustomRatePlaceholder() {
     const categoryRate = Constants.CATEGORY_RATES[category];
     const rate = storeSubscriber ? categoryRate.storeRate : categoryRate.noStoreRate;
 
-    customRateInput.placeholder = `Default: ${(rate * 100).toFixed(2)}%`;
+    customRateInput.placeholder = `${(rate * 100).toFixed(2)}%`;
 }
 
 function updatePaymentInputs() {
@@ -42,11 +50,11 @@ function updatePaymentInputs() {
     paymentRateInput.disabled = !customProcessor;
     paymentFixedFeeInput.disabled = !customProcessor;
     paymentRateInput.placeholder = customProcessor
-        ? `Default: ${(Constants.DEFAULT_PAYMENT_PROCESSOR_RATE * 100).toFixed(2)}%`
-        : 'Included in eBay fee';
+        ? `${(Constants.DEFAULT_PAYMENT_PROCESSOR_RATE * 100).toFixed(2)}%`
+        : 'Included';
     paymentFixedFeeInput.placeholder = customProcessor
-        ? `Default: ${currency(Constants.DEFAULT_PAYMENT_PROCESSOR_FIXED_FEE)}`
-        : 'Included in eBay fee';
+        ? currency(Constants.DEFAULT_PAYMENT_PROCESSOR_FIXED_FEE)
+        : 'Included';
 }
 
 function updateOutput() {
@@ -77,47 +85,75 @@ function updateOutput() {
         paymentProcessorFixedFee,
     });
 
-    document.getElementById('buyerPaid')!.innerText = currency(feeObj.buyerPaid);
+    const positiveProfit = Math.max(0, feeObj.netProfit);
+    const chartTotal = positiveProfit + feeObj.totalCosts + feeObj.totalSellingFees;
+    const profitDegrees = share(positiveProfit, chartTotal) * 3.6;
+    const expensesDegrees = share(feeObj.totalCosts, chartTotal) * 3.6;
+    const profitPercent = share(feeObj.netProfit, feeObj.grossRevenue);
+    const feesPercent = share(feeObj.totalSellingFees, feeObj.grossRevenue);
 
-    document.getElementById('totalSaleAmount')!.innerText = currency(feeObj.buyerPaid);
-    document.getElementById('totalSaleAmountDiff')!.innerText =
-        `(${currency(feeObj.sellingPrice)} price + ${currency(feeObj.shippingCharged)} shipping + ${currency(feeObj.salesTaxAmount)} sales tax @ ${percent(feeObj.salesTaxRate)})`;
+    setText('summaryFees', currency(feeObj.totalSellingFees));
+    setText('summaryFeesPercent', `(${percent(feesPercent)})`);
+    setText('summaryProfit', currency(feeObj.netProfit));
+    setText('summaryProfitPercent', `(${percent(profitPercent)})`);
+    setText('summaryExpenses', currency(feeObj.totalCosts));
+    setText('summarySellingFees', currency(feeObj.totalSellingFees));
 
-    document.getElementById('finalValueFee')!.innerText = currency(feeObj.finalValueFee);
-    document.getElementById('finalValueFeeDiff')!.innerText = feeObj.topRatedPlusDiscount > 0
+    const chart = document.getElementById('profitChart') as HTMLElement;
+    chart.style.background = chartTotal > 0
+        ? `conic-gradient(var(--profit) 0deg ${profitDegrees}deg, var(--expenses) ${profitDegrees}deg ${profitDegrees + expensesDegrees}deg, var(--fees) ${profitDegrees + expensesDegrees}deg 360deg)`
+        : 'conic-gradient(var(--profit) 0deg 360deg)';
+
+    setText('buyerPaid', currency(feeObj.buyerPaid));
+
+    setText('totalSaleAmount', currency(feeObj.buyerPaid));
+    setText('totalSaleAmountDiff',
+        `(${currency(feeObj.sellingPrice)} price + ${currency(feeObj.shippingCharged)} shipping + ${currency(feeObj.salesTaxAmount)} sales tax @ ${percent(feeObj.salesTaxRate)})`
+    );
+
+    setText('finalValueFee', currency(feeObj.finalValueFee));
+    setText('finalValueFeeDiff', feeObj.topRatedPlusDiscount > 0
         ? `(-${currency(feeObj.finalValueFeeBeforeDiscount)} @ ${percent(feeObj.finalValueRate * 100)}; ${currency(feeObj.topRatedPlusDiscount)} Top Rated Plus discount)`
-        : `(-${currency(feeObj.finalValueFee)} @ ${percent(feeObj.finalValueRate * 100)})`;
+        : `(-${currency(feeObj.finalValueFee)} @ ${percent(feeObj.finalValueRate * 100)})`
+    );
 
-    document.getElementById('orderFee')!.innerText = currency(feeObj.orderFee);
-    document.getElementById('orderFeeDiff')!.innerText =
-        `(-${currency(feeObj.orderFee)} per-order fee)`;
+    setText('orderFee', currency(feeObj.orderFee));
+    setText('orderFeeDiff',
+        `(-${currency(feeObj.orderFee)} per-order fee)`
+    );
 
-    document.getElementById('promotionFee')!.innerText = currency(feeObj.promotionFee);
-    document.getElementById('promotionFeeDiff')!.innerText =
-        `(-${currency(feeObj.promotionFee)} promoted listing fee @ ${percent(feeObj.promotionRate)})`;
+    setText('promotionFee', currency(feeObj.promotionFee));
+    setText('promotionFeeDiff',
+        `(-${currency(feeObj.promotionFee)} promoted listing fee @ ${percent(feeObj.promotionRate)})`
+    );
 
-    document.getElementById('internationalFee')!.innerText = currency(feeObj.internationalFee);
-    document.getElementById('internationalFeeDiff')!.innerText = feeObj.internationalSale
+    setText('internationalFee', currency(feeObj.internationalFee));
+    setText('internationalFeeDiff', feeObj.internationalSale
         ? `(-${currency(feeObj.internationalFee)} international fee @ ${percent(Constants.INTERNATIONAL_FEE_RATE * 100)})`
-        : `(-${currency(0)} international fee)`;
+        : `(-${currency(0)} international fee)`
+    );
 
-    document.getElementById('paymentFee')!.innerText = currency(feeObj.paymentProcessorFee);
-    document.getElementById('paymentFeeDiff')!.innerText = feeObj.paymentProcessor === 'custom'
+    setText('paymentFee', currency(feeObj.paymentProcessorFee));
+    setText('paymentFeeDiff', feeObj.paymentProcessor === 'custom'
         ? `(-${currency(feeObj.paymentProcessorFee)} processor fee @ ${percent(feeObj.paymentProcessorRate * 100)} + ${currency(feeObj.paymentProcessorFixedFee)})`
-        : '($0.00; included in eBay managed payments)';
+        : '($0.00; included in eBay managed payments)'
+    );
 
-    document.getElementById('totalFees')!.innerText = currency(feeObj.totalFeesAndCosts);
-    document.getElementById('totalFeesDiff')!.innerText =
-        `(${currency(feeObj.totalSellingFees)} fees + ${currency(feeObj.totalCosts)} product/shipping costs)`;
+    setText('totalFees', currency(feeObj.totalFeesAndCosts));
+    setText('totalFeesDiff',
+        `(${currency(feeObj.totalSellingFees)} fees + ${currency(feeObj.totalCosts)} product/shipping costs)`
+    );
 
-    document.getElementById('netProfit')!.innerText = currency(feeObj.netProfit);
-    document.getElementById('netProfitDiff')!.innerText =
-        `(${currency(feeObj.grossRevenue)} revenue - ${currency(feeObj.totalFeesAndCosts)} fees/costs)`;
+    setText('netProfit', currency(feeObj.netProfit));
+    setText('netProfitDiff',
+        `(${currency(feeObj.grossRevenue)} revenue - ${currency(feeObj.totalFeesAndCosts)} fees/costs)`
+    );
 
-    document.getElementById('profitMargin')!.innerText = percent(feeObj.profitMargin);
-    document.getElementById('profitMarginDiff')!.innerText = feeObj.grossRevenue > 0
+    setText('profitMargin', percent(feeObj.profitMargin));
+    setText('profitMarginDiff', feeObj.grossRevenue > 0
         ? `(net profit / ${currency(feeObj.grossRevenue)} revenue)`
-        : '';
+        : ''
+    );
 }
 
 function updateAll() {
